@@ -1,55 +1,27 @@
 
 # Tarea 2: Network Propagation
 
-Escribe un script en Python que implemente un ejemplo de propagación en redes utilizando algún algoritmo de **GUILD** y/o **DIAMOnD**. Usa los genes **ENO1**, **PGK1** y **HK2** como semillas. Se proporcionan archivos de red formateada para ambos algoritmos, así como una red filtrada obtenida de STRING y un script de ejemplo para procesarla.
+## ¿Qué es el *Network Propagation*?
 
-## Estructura del repositorio
+El **Network Propagation**, o propagación en redes, es una técnica computacional ampliamente utilizada en la biología de sistemas. Se utiliza para analizar la estructura y la dinámica de redes complejas, como las interacciones proteína-proteína o las redes génicas. La idea fundamental es la de difundir información a través de la red, de manera que los nodos conectados influyan entre sí. Este proceso permite extender el conocimiento obtenido de un conjunto inicial de genes hacia otros genes conectados, que podrían estar relacionados funcional o biológicamente. 
 
-```
+En el contexto biológico, esta técnica ayuda a identificar genes potencialmente implicados en una enfermedad, proceso celular o ruta metabólica, incluso si no se conocían previamente.
+Entre los algoritmos más usados para implementar propagación en red destacan:
 
-/network\_propagation/
-├── data/
-│   ├── network\_guild.txt                        # Red formateada para GUILD
-│   ├── network\_diamond.txt                      # Red formateada para DIAMOnD
-│   ├── string\_network\_filtered\_hugo-400.tsv     # Red filtrada de STRING
-│   └── genes\_seed.txt                           # Genes semilla: ENO1, PGK1, HK2
-├── scripts/
-│   ├── process\_STRING.py                        # Script de ejemplo para procesar la red
-│   └── tu\_script.py                             # Script que debe entregar el estudiante
-├── results/                                     # Carpeta para resultados generados
-├── README.md                                    # Este archivo
-└── requirements.txt                             # Dependencias: networkx, pandas
+* **Random Walk with Restart (RWR)**: simula un "paseante aleatorio" que se mueve por la red y periódicamente regresa a los nodos semilla.
+* **Heat Diffusion (HD)**: modela la propagación de información como si fuera calor que se difunde a través de la red.
+* **GUILD y DIAMOnD**: frameworks que aplican variantes de estas ideas para priorizar genes candidatos o detectar módulos asociados a enfermedades.
 
-```
+## Contexto de la práctica
 
-## Instrucciones de entrega
+En esta práctica se implementará un ejemplo de **propagación en redes utilizando los algoritmos GUILD y DIAMOnD**, dos enfoques complementarios para analizar redes biológicas.
 
-- Haz un **fork** de este repositorio en tu cuenta de GitHub.
-- Trabaja en tu fork y sube tu script a la carpeta `scripts/`.
-- Tu script debe poder ejecutarse desde la línea de comandos (CLI), aceptando como mínimo el archivo de entrada y el archivo de salida como argumentos.
-- Documenta tu código explicando los métodos, librerías y algoritmos utilizados.
-- Puedes generar un archivo de resultados en la carpeta `results/` si lo consideras útil.
+A partir de una red de interacción entre proteínas (obtenidas de **STRING**), se usarán como *genes semilla* los genes **ENO1**, **PGK1** y **HK2**, todos ellos relacionados con la **glucólisis**, una vía metabólica esencial en la producción de energía celular.
 
-## Rúbrica de evaluación
+Con ello, buscaremos:
 
-La tarea se evaluará sobre un máximo de **10 puntos**, distribuidos según los siguientes criterios:
+* **Priorizar genes candidatos** que podrían estar funcionalmente asociados a los iniciales.
+* **Visualizar la difusión de información** en una red biológica real.
+* **Explorar diferencias** entre los métodos GUILD (difusión iterativa tipo RWR) y DIAMOnD (expansión modular progresiva).
 
-| Criterio | Descripción | Puntos |
-|---------|-------------|--------|
-| **1. Funcionalidad** | El script realiza correctamente la propagación en red con GUILD y/o DIAMOnD. | 4 |
-| **2. Documentación** | El código está comentado y explica claramente los métodos y algoritmos utilizados. | 2 |
-| **3. Uso de librerías** | Se emplean librerías adecuadas para el análisis de redes (e.g., networkx, pandas). | 2 |
-| **4. Formato y estilo** | El código sigue buenas prácticas de estilo y es legible. | 1 |
-| **5. Automatización (CLI)** | El script acepta argumentos desde la línea de comandos. | 1 |
-
-## Dependencias recomendadas
-
-Incluye en `requirements.txt` las librerías necesarias para ejecutar tu script. Por ejemplo:
-
-```
-
-networkx
-pandas
-
-```
-
+Los resultados esperados son archivos con los **genes ordenados por relevancia** o **su posición dentro del módulo**, lo que nos permitirá interpretar qué regiones de la red están más relacionadas con las semillas seleccionadas.
