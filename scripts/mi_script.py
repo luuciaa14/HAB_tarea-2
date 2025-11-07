@@ -1,4 +1,5 @@
 
+import os
 import pandas as pd
 import networkx as nx
 
@@ -114,10 +115,25 @@ def diamond_like(G, seeds, k=50):
 
     return order
 
+def save_scores(scores_dict, out_path):
+    df = pd.DataFrame(
+        [{"gene": g, "score": s} for g, s in scores_dict.items()]
+    ).sort_values("score", ascending=False)
+    df.to_csv(out_path, index=False)
+
+def save_order(order_dict, out_path):
+
+    df = pd.DataFrame(
+        [{"gene": g, "rank": r} for g, r in order_dict.items()]
+    ).sort_values("rank", ascending=True)
+    df.to_csv(out_path, index=False)
+
+
 if __name__ == "__main__":
     network_path = network_path = "data/string_network_filtered_hugo-400.tsv"
     seeds_path = "data/genes_seed.txt"
 
+    os.makedirs("results", exist_ok=True)
 
     # Cargar la red
     try:
@@ -154,14 +170,22 @@ if __name__ == "__main__":
     # Ejecutar propagación RWR
     scores = rwr_propagation(G, seeds_in_network, restart=0.5, max_iter=50)
     print("\n[OK] Propagación completada (RWR).")
+    rwr_out = "results/rwr_scores.csv"
+    save_scores(scores, rwr_out)
+    print(f"[INFO] Resultados RWR guardados en: {rwr_out}")
+
+    # DIAMOnD simplificado
+    diamond_order = diamond_like(G, seeds_in_network, k=30)
+    print("\n[OK] Expansión estilo DIAMOnD completada. Primeros genes del módulo:")
+    diamond_out = "results/diamond_module.csv"
+    save_order(diamond_order, diamond_out)
+    print(f"[INFO] Módulo DIAMOnD guardado en: {diamond_out}")
+
     top5 = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:5]
     print("[INFO] Top 5 nodos más puntuados:")
     for g, s in top5:
         print(f"   {g}: {s:.6f}")
 
-    # DIAMOnD simplificado
-    diamond_order = diamond_like(G, seeds_in_network, k=30)
-    print("\n[OK] Expansión estilo DIAMOnD completada. Primeros genes del módulo:")
     # ordenamos por rank
     first10 = sorted(diamond_order.items(), key=lambda x: x[1])[:10]
     for g, rank in first10:
