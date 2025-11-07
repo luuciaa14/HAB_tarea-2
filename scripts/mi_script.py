@@ -5,11 +5,18 @@ import networkx as nx
 
 def load_network(path):
 
+    # Intentamos leer con cabecera primero
+    df = pd.read_csv(path, sep="\t")
+
+    if {"protein1_hugo", "protein2_hugo"}.issubset(df.columns):
+        # Caso de la red STRING en HUGO
+        df = df[["protein1_hugo", "protein2_hugo"]]
+        df.columns = ["u", "v"]
+        G = nx.from_pandas_edgelist(df, "u", "v")
+        return G
+
     # Leemos el archivo por tabuladores o por espacios
-    try:
-        df = pd.read_csv(path, sep="\t", header=None)
-    except Exception:
-        df = pd.read_csv(path, sep=r"\s+", header=None)
+    df = pd.read_csv(path, sep=None, engine="python", header=None)
 
     # 2 columnas -> red sin pesos
     if df.shape[1] == 2:
@@ -32,9 +39,10 @@ def load_seeds(path):
                 seeds.append(gene)
     return seeds
 
-
 if __name__ == "__main__":
-    network_path = "data/network_guild.txt"
+    network_path = network_path = "data/string_network_filtered_hugo-400.tsv"
+    seeds_path = "data/genes_seed.txt"
+
 
     # Cargar la red
     try:
@@ -50,9 +58,9 @@ if __name__ == "__main__":
 
     # Cargar las semillas
     try:
-        seeds = load_seeds(seeds_path)
+        seeds_raw = load_seeds(seeds_path)
         print(f"[OK] Semillas cargadas desde: {seeds_path}")
-        print(f"[INFO] Semillas leídas: {len(seeds)} -> {seeds}")
+        print(f"[INFO] Semillas leídas: {len(seeds_raw)} -> {seeds_raw}")
     except FileNotFoundError:
         print(f"[ERROR] No se encontró el archivo de semillas: {seeds_path}")
         raise SystemExit(1)
@@ -61,9 +69,9 @@ if __name__ == "__main__":
         raise SystemExit(1)
     
     # Comprobar cuántas semillas hay en la red
-    seeds_in_network = [s for s in seeds if s in G]
-    missing_seeds = [s for s in seeds if s not in G]
+    seeds_in_network = [s for s in seeds_raw if s in G]
+    missing_seeds = [s for s in seeds_raw if s not in G]
 
-    print(f"[INFO] Semillas presentes en la red: {len(seeds_in_network)} / {len(seeds)}")
+    print(f"[INFO] Semillas presentes en la red: {len(seeds_in_network)} / {len(seeds_raw)}")
     if missing_seeds:
         print(f"[WARN] Estas semillas no están en la red: {missing_seeds}")
