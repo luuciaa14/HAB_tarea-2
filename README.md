@@ -143,3 +143,39 @@ De este modo, los nodos cercanos a las semillas en la topología de la red acumu
 
 El script devuelve una puntuación (score) para cada gen o proteína de la red, que refleja su **proximidad funcional a las semillas**.
 Tras la ejecución, se muestran los **5 genes con mayor puntuación**, representando aquellos más conectados o relevantes según el algoritmo.
+
+## Expansión de módulo estilo DIAMOnD
+
+En esta versión se incorpora una segunda forma de analizar la red, inspirada en el algoritmo **DIAMOnD (Disease Module Detection)**. A diferencia del enfoque basado en difusión (RWR), este método trabaja de forma **constructiva**: parte del conjunto de genes semilla y va añadiendo, uno a uno, los genes que están más conectados con ese conjunto.
+
+La intuición es la siguiente: si varios genes de una misma enfermedad o proceso biológico están cerca en la red, entonces los genes que se conectan fuertemente con ellos también son buenos candidatos a pertenecer al mismo módulo funcional.
+
+### Cómo funciona la versión simplificada
+
+1. Se inicializa el **módulo** con los genes semilla presentes en la red.
+2. Para cada nodo que aún no está en el módulo, se cuenta cuántos vecinos tiene dentro del módulo actual.
+3. Se añade al módulo el nodo con **mayor número de vecinos dentro del módulo**.
+4. Se repite el proceso hasta alcanzar un tamaño máximo (`k`) o hasta que ya no haya nodos conectados.
+
+El resultado es un **orden de entrada** de los genes al módulo, que indica qué genes parecen más cercanos (topológicamente) al conjunto inicial.
+
+Este comportamiento es similar al de DIAMOnD original, pero sin la parte estadística completa (p-valores y modelo nulo). Para la práctica es suficiente porque muestra la idea de “crecer” un módulo de enfermedad a partir de unas semillas.
+
+### Parámetros
+
+- `k`: número máximo de genes que queremos en el módulo. En la práctica se pueden usar valores entre 30 y 200 según el tamaño de la red.
+- semillas: se usan las mismas que en la propagación RWR (`ENO1`, `PGK1`, `HK2`), por lo que ambas partes del script son comparables.
+
+### Salida
+
+Al ejecutar el script, además de la salida del RWR, se mostrará una lista ordenada de los primeros genes añadidos al módulo, por ejemplo:
+
+```text
+[OK] Expansión estilo DIAMOnD completada. Primeros genes del módulo:
+  01. ENO1
+  02. PGK1
+  03. HK2
+  04. GAPDH
+  05. ALDOA
+  06. TPI1
+  ...
