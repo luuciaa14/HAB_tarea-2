@@ -67,3 +67,19 @@ string12_9606_800_entrez.txt
 ```
 
 que representa la red filtrada y mapeada, lista para ser utilizada por los algoritmos **GUILD** o **DIAMOnD** en el siguiente paso del análisis.
+
+## Carga y representación de la red
+
+En primer lugar, se implementa la **funcionalidad básica para leer y representar la red de interacciones biológicas**.
+El objetivo es comprobar que los archivos de red están correctamente formateados y que el script puede construir un **grafo** que posteriormente servirá como base para los algoritmos de propagación.
+
+El código utiliza las librerías **pandas** y **networkx**, dos herramientas muy comunes en bioinformática para manejar datos tabulares y redes biológicas respectivamente.
+A partir de un archivo que contiene pares de genes o proteínas conectados (por ejemplo, una interacción en la red STRING), el script crea un **grafo no dirigido**, donde:
+
+* Los **nodos** representan genes o proteínas.
+* Las **aristas** representan las interacciones entre ellos.
+
+Una vez cargada la red, el script imprime por pantalla el número total de nodos y aristas, lo que permite validar que los datos se han leído correctamente antes de continuar con los pasos siguientes (lectura de semillas y propagación).
+
+De esta forma, asentamos las bases del código, ya que **toda la propagación de información en versiones posteriores dependerá de este grafo inicial**.
+En bioinformática, este tipo de representación es fundamental para estudiar cómo los genes o proteínas se relacionan entre sí y para poder difundir señales o puntuaciones a través de la red.
