@@ -83,3 +83,37 @@ Una vez cargada la red, el script imprime por pantalla el número total de nodos
 
 De esta forma, asentamos las bases del código, ya que **toda la propagación de información en versiones posteriores dependerá de este grafo inicial**.
 En bioinformática, este tipo de representación es fundamental para estudiar cómo los genes o proteínas se relacionan entre sí y para poder difundir señales o puntuaciones a través de la red.
+
+## Lectura de genes semilla y compatibilidad con formatos de red
+
+En la segunda versión del script se añadió la funcionalidad para **leer los genes semilla** y comprobar su presencia dentro de la red cargada.
+Los genes semilla son el **punto de partida** del proceso de propagación: a partir de ellos se difundirá la información para identificar otros genes relacionados funcionalmente.
+
+El archivo `data/genes_seed.txt` contiene los nombres de los genes semilla (uno por línea):
+
+```
+ENO1
+PGK1
+HK2
+```
+
+Estos genes pertenecen a la vía glucolítica y se utilizan como referencia para iniciar la propagación dentro de la red biológica.
+
+El script incorpora ahora la función `load_seeds(path)`, que lee el archivo y devuelve una lista de nombres.
+Posteriormente, compara esos genes con los nodos de la red para verificar si están presentes, mostrando un resumen con:
+
+* El número total de semillas leídas,
+* Cuántas están realmente en la red,
+* Cuáles no se han encontrado.
+
+Esto permite **comprobar la coherencia entre los identificadores** de la red y los de las semillas antes de aplicar cualquier algoritmo.
+
+## Compatibilidad con distintos tipos de red
+
+En este punto también se adaptó la función `load_network(path)` para poder reconocer automáticamente **distintos formatos de red**:
+
+* Redes con identificadores numéricos (ENTREZ), como `network_guild.txt` y `network_diamond.txt`.
+* Redes con identificadores de genes en formato HUGO, como `string_network_filtered_hugo-400.tsv`.
+
+El script detecta si el archivo contiene las columnas `protein1_hugo` y `protein2_hugo` (propias del formato STRING) y ajusta la lectura en consecuencia, evitando que la primera línea de cabecera se interprete como un nodo más.
+De esta forma, el código es más flexible y puede usarse indistintamente con diferentes redes biológicas.
