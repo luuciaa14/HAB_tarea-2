@@ -178,4 +178,45 @@ Al ejecutar el script, además de la salida del RWR, se mostrará una lista orde
   04. GAPDH
   05. ALDOA
   06. TPI1
-  ...
+```
+
+## Resultados y formato de salida
+
+A partir de la versión 5, el script genera automáticamente archivos de salida en la carpeta `results/`. Esto permite conservar los resultados de cada ejecución y facilita su posterior análisis en otras herramientas (Excel, pandas, R, etc.).
+
+Se generan dos archivos principales:
+
+1. **Resultados de la propagación RWR**
+
+   Archivo: `results/rwr_scores.csv`
+
+   Contenido:
+   ```text
+   gene,score
+   ENO1,0.08351
+   PGK1,0.07211
+   GAPDH,0.04532
+   ...
+
+Cada fila contiene un gen de la red y la puntuación que ha obtenido tras la propagación. El archivo está **ordenado de mayor a menor score**, de modo que las primeras filas corresponden a los genes más relacionados con las semillas.
+
+2. **Módulo generado por la expansión estilo DIAMOnD**
+
+Archivo: `results/diamond_module.csv`
+
+Contenido:
+```
+gene,rank
+ENO1,1
+PGK1,2
+HK2,3
+GAPDH,4
+```
+
+En este caso, el archivo refleja el orden en que los genes se van incorporando al módulo. El rank = 1 corresponde a las semillas iniciales y los siguientes valores a los genes que el algoritmo ha considerado más conectados al conjunto.
+
+Gracias a este formato, se puede:
+
+* Comparar las dos aproximaciones (difusión vs. expansión),
+* Filtrar los genes con mayor relevancia,
+* Cruzar estos resultados con anotaciones funcionales externas.
