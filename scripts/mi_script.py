@@ -22,15 +22,48 @@ def load_network(path):
 
     return G
 
+def load_seeds(path):
+    # Lee un archivo de semillas y devuelve una lista de strings
+    seeds = []
+    with open(path) as f:
+        for line in f:
+            gene = line.strip()
+            if gene:       
+                seeds.append(gene)
+    return seeds
+
 
 if __name__ == "__main__":
     network_path = "data/network_guild.txt"
 
+    # Cargar la red
     try:
         G = load_network(network_path)
         print("[OK] Red cargada desde:", network_path)
         print(f"[INFO] Nodos: {G.number_of_nodes()} | Aristas: {G.number_of_edges()}")
     except FileNotFoundError:
         print(f"[ERROR] No se encontró el archivo de red: {network_path}")
+        raise SystemExit(1)
     except Exception as e:
         print(f"[ERROR] No se pudo cargar la red: {e}")
+        raise SystemExit(1)
+
+    # Cargar las semillas
+    try:
+        seeds = load_seeds(seeds_path)
+        print(f"[OK] Semillas cargadas desde: {seeds_path}")
+        print(f"[INFO] Semillas leídas: {len(seeds)} -> {seeds}")
+    except FileNotFoundError:
+        print(f"[ERROR] No se encontró el archivo de semillas: {seeds_path}")
+        raise SystemExit(1)
+    except Exception as e:
+        print(f"[ERROR] No se pudieron cargar las semillas: {e}")
+        raise SystemExit(1)
+    
+    # Comprobar cuántas semillas hay en la red
+    seeds_in_network = [s for s in seeds if s in G]
+    missing_seeds = [s for s in seeds if s not in G]
+
+    print(f"[INFO] Semillas presentes en la red: {len(seeds_in_network)} / {len(seeds)}")
+    if missing_seeds:
+        print(f"[WARN] Estas semillas no están en la red: {missing_seeds}")
