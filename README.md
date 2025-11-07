@@ -117,3 +117,29 @@ En este punto también se adaptó la función `load_network(path)` para poder re
 
 El script detecta si el archivo contiene las columnas `protein1_hugo` y `protein2_hugo` (propias del formato STRING) y ajusta la lectura en consecuencia, evitando que la primera línea de cabecera se interprete como un nodo más.
 De esta forma, el código es más flexible y puede usarse indistintamente con diferentes redes biológicas.
+
+## Propagación tipo GUILD (Random Walk with Restart)
+
+En esta versión se implementa el primer algoritmo de propagación: **Random Walk with Restart (RWR)**, una de las bases conceptuales de los métodos de priorización usados en GUILD.
+
+El enfoque se basa en un modelo de **paseo aleatorio sobre la red**, donde un “walker” (o señal) se mueve de un nodo a sus vecinos con cierta probabilidad. En cada paso, existe una probabilidad `r` (llamada restart) de volver a los **nodos semilla**.
+De este modo, los nodos cercanos a las semillas en la topología de la red acumulan más señal, obteniendo una puntuación más alta.
+
+### Funcionamiento general del algoritmo
+
+1. Se asigna una puntuación inicial de 1/N a cada semilla (donde N es el número de semillas).
+2. En cada iteración:
+    * La señal de cada nodo se reparte equitativamente entre sus vecinos.
+    * Una fracción r del total se “reinicia” volviendo a las semillas.
+3. El proceso se repite hasta que las puntuaciones se estabilizan (convergencia).
+
+### Parámetros principales
+
+* `restart`: controla cuánto peso se devuelve a las semillas en cada paso (por defecto 0.5).
+* `max_iter`: número máximo de iteraciones permitidas.
+* `tol`: tolerancia usada para detener el proceso si las puntuaciones no cambian significativamente.
+
+### Resultados esperados
+
+El script devuelve una puntuación (score) para cada gen o proteína de la red, que refleja su **proximidad funcional a las semillas**.
+Tras la ejecución, se muestran los **5 genes con mayor puntuación**, representando aquellos más conectados o relevantes según el algoritmo.
