@@ -39,6 +39,43 @@ def load_seeds(path):
                 seeds.append(gene)
     return seeds
 
+def rwr_propagation(G, seeds, restart=0.5, max_iter=50, tol=1e-6):
+    nodes = list(G.nodes())
+    scores = {n: 0.0 for n in nodes}
+
+    # Asignar puntuación inicial (distribución uniforme en las semillas)
+    for s in seeds:
+        if s in scores:
+            scores[s] = 1.0 / len(seeds)
+
+    # Guardamos la distribución inicial
+    init_scores = scores.copy()
+
+    # Iteraciones del RWR
+    for _ in range(max_iter):
+        new_scores = {n: 0.0 for n in nodes}
+
+        # Difundir la señal a los vecinos
+        for n in nodes:
+            neighbors = list(G.neighbors(n))
+            if not neighbors:
+                continue
+            spread = scores[n] / len(neighbors)
+            for nb in neighbors:
+                new_scores[nb] += (1 - restart) * spread
+
+        # Añadir parte del reinicio (vuelta a las semillas)
+        for n in nodes:
+            new_scores[n] += restart * init_scores.get(n, 0.0)
+
+        # Comprobar convergencia
+        diff = sum(abs(new_scores[n] - scores[n]) for n in nodes)
+        scores = new_scores
+        if diff < tol:
+            break
+
+    return scores
+
 if __name__ == "__main__":
     network_path = network_path = "data/string_network_filtered_hugo-400.tsv"
     seeds_path = "data/genes_seed.txt"
@@ -75,3 +112,11 @@ if __name__ == "__main__":
     print(f"[INFO] Semillas presentes en la red: {len(seeds_in_network)} / {len(seeds_raw)}")
     if missing_seeds:
         print(f"[WARN] Estas semillas no están en la red: {missing_seeds}")
+
+    # Ejecutar propagación RWR
+    scores = rwr_propagation(G, seeds_in_network, restart=0.5, max_iter=50)
+    print("\n[OK] Propagación completada (RWR).")
+    top5 = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:5]
+    print("[INFO] Top 5 nodos más puntuados:")
+    for g, s in top5:
+        print(f"   {g}: {s:.6f}")
