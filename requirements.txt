@@ -1,2 +1,4 @@
-networkx
-pandas
+pandas>=2.0.0
+networkx>=3.0
+mygene>=3.2.2
+tqdm>=4.65.0
