@@ -76,6 +76,44 @@ def rwr_propagation(G, seeds, restart=0.5, max_iter=50, tol=1e-6):
 
     return scores
 
+def diamond_like(G, seeds, k=50):
+    # Módulo inicial = semillas
+    module = [s for s in seeds if s in G]
+    module_set = set(module)
+
+    # Guardamos el orden
+    order = {}
+    step = 1
+    for g in module:
+        order[g] = step
+        step += 1
+
+    # Ir agregando hasta llegar a k genes
+    while len(module_set) < k:
+        best_node = None
+        best_count = -1
+
+        # Candidatos = nodos de la red que no están en el módulo
+        for node in G.nodes():
+            if node in module_set:
+                continue
+            # Contamos cuántos vecinos tiene dentro del módulo actual
+            count = sum(1 for nb in G.neighbors(node) if nb in module_set)
+            if count > best_count:
+                best_count = count
+                best_node = node
+
+        # Si no hay nadie conectado, paramos
+        if best_node is None or best_count == 0:
+            break
+
+        # Añadimos el mejor
+        module_set.add(best_node)
+        order[best_node] = step
+        step += 1
+
+    return order
+
 if __name__ == "__main__":
     network_path = network_path = "data/string_network_filtered_hugo-400.tsv"
     seeds_path = "data/genes_seed.txt"
@@ -120,3 +158,11 @@ if __name__ == "__main__":
     print("[INFO] Top 5 nodos más puntuados:")
     for g, s in top5:
         print(f"   {g}: {s:.6f}")
+
+    # DIAMOnD simplificado
+    diamond_order = diamond_like(G, seeds_in_network, k=30)
+    print("\n[OK] Expansión estilo DIAMOnD completada. Primeros genes del módulo:")
+    # ordenamos por rank
+    first10 = sorted(diamond_order.items(), key=lambda x: x[1])[:10]
+    for g, rank in first10:
+        print(f"  {rank:02d}. {g}")
